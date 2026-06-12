@@ -69,7 +69,7 @@ export async function generateInvoicePDF(invoice: Invoice, profile: Profile): Pr
     overdue: rgb(0.9, 0.2, 0.2),
   };
   const statusColor = statusColors[invoice.status] || gray;
-  page.drawRectangle({ x: dateX, y: height - 235, width: 70, height: 20, color: statusColor, borderRadius: 4 });
+  page.drawRectangle({ x: dateX, y: height - 235, width: 70, height: 20, color: statusColor });
   page.drawText(invoice.status.toUpperCase(), { x: dateX + 8, y: height - 228, size: 9, font: fontBold, color: white });
 
   // Items table header
