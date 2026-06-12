@@ -181,6 +181,27 @@ export async function generateInvoicePDF(invoice: Invoice, profile: Profile): Pr
     if (line) page.drawText(line, { x: margin, y: lineY, size: 9, font: regular, color: darkGray });
   }
 
+  // ── Payment Methods ──────────────────────────────────────────
+  const payLines: string[] = [];
+  if (profile.payment_bank_name && profile.payment_bank_account) {
+    payLines.push(`Bank: ${profile.payment_bank_name}  ·  Acct: ${profile.payment_bank_account}${profile.payment_bank_routing ? `  ·  Routing: ${profile.payment_bank_routing}` : ""}`);
+  }
+  const wallets: string[] = [];
+  if (profile.payment_paypal) wallets.push(`PayPal: ${profile.payment_paypal}`);
+  if (profile.payment_venmo)  wallets.push(`Venmo: ${profile.payment_venmo}`);
+  if (profile.payment_cashapp) wallets.push(`Cash App: ${profile.payment_cashapp}`);
+  if (wallets.length) payLines.push(wallets.join("   ·   "));
+  if (profile.payment_other) payLines.push(profile.payment_other);
+
+  if (payLines.length > 0) {
+    const payStartY = 52 + payLines.length * 14;
+    page.drawRectangle({ x: 0, y: 40, width, height: payStartY, color: rgb(0.06, 0.06, 0.09) });
+    page.drawText("PAYMENT DETAILS", { x: margin, y: 40 + payLines.length * 14 + 4, size: 7, font: bold, color: orange });
+    payLines.forEach((line, i) => {
+      page.drawText(line, { x: margin, y: 40 + (payLines.length - 1 - i) * 14, size: 8, font: regular, color: rgb(0.65, 0.65, 0.7) });
+    });
+  }
+
   // ── Footer ──────────────────────────────────────────────────
   page.drawLine({ start: { x: margin, y: 36 }, end: { x: width - margin, y: 36 }, thickness: 0.5, color: rule });
   page.drawText("Generated with Billed  ·  billed-alpha.vercel.app", {

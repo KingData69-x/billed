@@ -5,12 +5,14 @@ import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn, formatCurrency } from "@/lib/utils";
-import { Plus, Trash2, Download, Save } from "lucide-react";
+import { Plus, Trash2, Download, Save, AlertTriangle } from "lucide-react";
 import type { InvoiceItem, Client, Profile } from "@/lib/types";
+import { PLAN_LIMITS } from "@/lib/utils";
 
 interface InvoiceFormProps {
   profile: Profile | null;
   clients: Client[];
+  monthlyCount: number;
 }
 
 const defaultItem = (): InvoiceItem => ({
@@ -30,7 +32,7 @@ function getDueDateStr(days = 30) {
   return d.toISOString().split("T")[0];
 }
 
-export function InvoiceForm({ profile, clients }: InvoiceFormProps) {
+export function InvoiceForm({ profile, clients, monthlyCount }: InvoiceFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -124,7 +126,7 @@ export function InvoiceForm({ profile, clients }: InvoiceFormProps) {
         updated_at: new Date().toISOString(),
       };
       const pdfBytes = await generateInvoicePDF(fakeInvoice, fakeProfile);
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const blob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -136,7 +138,45 @@ export function InvoiceForm({ profile, clients }: InvoiceFormProps) {
     }
   }
 
+  const plan = profile?.plan ?? "free";
+  const limit = PLAN_LIMITS[plan].invoices;
+  const isUnlimited = limit === Infinity;
+  const remaining = isUnlimited ? Infinity : limit - monthlyCount;
+  const atLimit = !isUnlimited && remaining <= 0;
+  const nearLimit = !isUnlimited && remaining <= 1 && remaining > 0;
+
   return (
+    <div className="space-y-4">
+      {/* Invoice counter */}
+      {!isUnlimited && (
+        <div className={cn(
+          "flex items-center justify-between rounded-xl px-4 py-3 text-sm border",
+          atLimit
+            ? "bg-red-500/10 border-red-500/20 text-red-400"
+            : nearLimit
+            ? "bg-orange-500/10 border-orange-500/20 text-orange-400"
+            : "bg-white/[0.03] border-white/5 text-zinc-400"
+        )}>
+          <div className="flex items-center gap-2">
+            {(atLimit || nearLimit) && <AlertTriangle className="w-4 h-4 shrink-0" />}
+            <span>
+              {atLimit
+                ? "You've used all 5 free invoices this month."
+                : `${monthlyCount} of ${limit} free invoices used this month`}
+            </span>
+          </div>
+          {atLimit ? (
+            <a href="/settings#billing" className="font-semibold text-orange-400 hover:text-orange-300 whitespace-nowrap ml-4">Upgrade →</a>
+          ) : (
+            <div className="flex items-center gap-2 ml-4">
+              {Array.from({ length: limit }).map((_, i) => (
+                <div key={i} className={cn("w-2 h-2 rounded-full", i < monthlyCount ? "bg-orange-400" : "bg-white/10")} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Left: Form */}
       <div className="lg:col-span-2 space-y-6">
@@ -291,6 +331,7 @@ export function InvoiceForm({ profile, clients }: InvoiceFormProps) {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }

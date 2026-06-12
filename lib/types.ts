@@ -11,6 +11,13 @@ export interface Profile {
   plan: Plan;
   stripe_customer_id: string | null;
   invoice_count: number;
+  payment_bank_name: string | null;
+  payment_bank_account: string | null;
+  payment_bank_routing: string | null;
+  payment_paypal: string | null;
+  payment_venmo: string | null;
+  payment_cashapp: string | null;
+  payment_other: string | null;
   created_at: string;
 }
 
