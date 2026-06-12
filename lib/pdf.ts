@@ -130,7 +130,7 @@ export async function generateInvoicePDF(invoice: Invoice, profile: Profile): Pr
   page.drawLine({ start: { x: L, y: afterRows - 2 }, end: { x: R, y: afterRows - 2 }, thickness: 0.5, color: faint });
 
   const tCol  = R - 192;
-  let totCursor = afterRows - 18;
+  let totCursor = afterRows - 30;
 
   function drawTotRow(label: string, val: string, isTotal = false) {
     if (isTotal) {
