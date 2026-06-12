@@ -4,213 +4,206 @@ import type { Invoice, Profile } from "./types";
 
 export async function generateInvoicePDF(invoice: Invoice, profile: Profile): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([612, 792]); // US Letter
+  const page = pdfDoc.addPage([612, 792]);
   const { width, height } = page.getSize();
 
-  const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const bold    = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const regular = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-  // Colors
-  const orange   = rgb(1, 0.42, 0.1);
-  const black    = rgb(0.08, 0.08, 0.1);
-  const darkGray = rgb(0.3, 0.3, 0.35);
-  const midGray  = rgb(0.55, 0.55, 0.6);
-  const lightBg  = rgb(0.96, 0.96, 0.97);
-  const white    = rgb(1, 1, 1);
-  const rule     = rgb(0.88, 0.88, 0.91);
+  // ── Palette ────────────────────────────────────────────────
+  const orange  = rgb(1, 0.42, 0.1);
+  const ink     = rgb(0.1,  0.1,  0.12);
+  const dark    = rgb(0.18, 0.18, 0.22);
+  const muted   = rgb(0.45, 0.45, 0.45);
+  const faint   = rgb(0.9,  0.9,  0.92);
+  const stripe  = rgb(0.96, 0.96, 0.97);
+  const white   = rgb(1,    1,    1);
 
-  const margin = 48;
-  const contentW = width - margin * 2;
+  const L = 48;          // left margin
+  const R = width - 48;  // right margin
+  const W = R - L;       // content width
 
-  // ── Background ──────────────────────────────────────────────
+  // ── Page background ────────────────────────────────────────
   page.drawRectangle({ x: 0, y: 0, width, height, color: white });
 
-  // Left accent bar
-  page.drawRectangle({ x: 0, y: 0, width: 4, height, color: orange });
+  // Orange left bar
+  page.drawRectangle({ x: 0, y: 0, width: 5, height, color: orange });
 
-  // ── Header area ─────────────────────────────────────────────
-  const headerH = 110;
-  page.drawRectangle({ x: 0, y: height - headerH, width, height: headerH, color: black });
+  // ── Header ─────────────────────────────────────────────────
+  page.drawRectangle({ x: 0, y: height - 108, width, height: 108, color: ink });
 
-  // Business name
-  const bizName = (profile.business_name || profile.full_name || "Your Business").toUpperCase();
-  page.drawText(bizName, {
-    x: margin, y: height - 52,
-    size: 15, font: bold, color: white,
-  });
+  const biz = (profile.business_name || profile.full_name || "Your Business").toUpperCase();
+  page.drawText(biz, { x: L, y: height - 46, size: 16, font: bold, color: white });
 
-  // Business contact under name
-  let contactY = height - 68;
-  const contactItems = [profile.business_email, profile.business_phone].filter(Boolean);
-  contactItems.forEach(item => {
-    page.drawText(item!, { x: margin, y: contactY, size: 9, font: regular, color: rgb(0.6, 0.6, 0.65) });
-    contactY -= 13;
-  });
+  let bizY = height - 64;
+  for (const line of [profile.business_email, profile.business_phone].filter(Boolean)) {
+    page.drawText(line!, { x: L, y: bizY, size: 8.5, font: regular, color: rgb(0.58, 0.58, 0.65) });
+    bizY -= 13;
+  }
 
-  // INVOICE label (right side)
-  page.drawText("INVOICE", {
-    x: width - margin - 95, y: height - 48,
-    size: 26, font: bold, color: orange,
-  });
-  page.drawText(invoice.invoice_number, {
-    x: width - margin - 95, y: height - 65,
-    size: 11, font: regular, color: rgb(0.65, 0.65, 0.7),
-  });
+  // "INVOICE" on right
+  page.drawText("INVOICE", { x: R - 95, y: height - 46, size: 26, font: bold, color: orange });
+  page.drawText(invoice.invoice_number, { x: R - 95, y: height - 63, size: 10.5, font: regular, color: rgb(0.6, 0.6, 0.65) });
 
-  // ── Status badge ────────────────────────────────────────────
-  const statusColors: Record<string, ReturnType<typeof rgb>> = {
-    draft: rgb(0.5, 0.5, 0.55),
-    sent:  rgb(0.22, 0.52, 0.92),
-    paid:  rgb(0.1, 0.72, 0.42),
-    overdue: rgb(0.92, 0.22, 0.22),
+  // Status pill
+  const statusBg: Record<string, ReturnType<typeof rgb>> = {
+    draft: rgb(0.45, 0.45, 0.5),
+    sent:  rgb(0.2,  0.5,  0.9),
+    paid:  rgb(0.1,  0.68, 0.38),
+    overdue: rgb(0.88, 0.2, 0.2),
   };
-  const statusColor = statusColors[invoice.status] || midGray;
-  const statusLabel = invoice.status.toUpperCase();
-  const statusW = statusLabel.length * 7 + 18;
-  page.drawRectangle({ x: width - margin - statusW, y: height - 93, width: statusW, height: 18, color: statusColor });
-  page.drawText(statusLabel, {
-    x: width - margin - statusW + 9, y: height - 89,
-    size: 8, font: bold, color: white,
-  });
+  const sc = statusBg[invoice.status] ?? muted;
+  const sl = invoice.status.toUpperCase();
+  const sw = sl.length * 6.5 + 18;
+  page.drawRectangle({ x: R - sw, y: height - 91, width: sw, height: 17, color: sc });
+  page.drawText(sl, { x: R - sw + 9, y: height - 87.5, size: 7.5, font: bold, color: white });
 
-  // ── Bill To + Dates row ─────────────────────────────────────
-  const infoY = height - 155;
+  // ── Bill-To + Dates ────────────────────────────────────────
+  let y = height - 148;
 
-  // Bill To
-  page.drawText("BILL TO", { x: margin, y: infoY, size: 8, font: bold, color: orange });
-  page.drawText(invoice.client_name, { x: margin, y: infoY - 16, size: 13, font: bold, color: black });
-  let clientY = infoY - 31;
+  page.drawText("BILL TO", { x: L, y, size: 7.5, font: bold, color: orange });
+  y -= 15;
+  page.drawText(invoice.client_name, { x: L, y, size: 13, font: bold, color: ink });
+  y -= 14;
   if (invoice.client_email) {
-    page.drawText(invoice.client_email, { x: margin, y: clientY, size: 9, font: regular, color: darkGray });
-    clientY -= 13;
+    page.drawText(invoice.client_email, { x: L, y, size: 9, font: regular, color: muted });
+    y -= 13;
   }
   if (invoice.client_address) {
-    invoice.client_address.split("\n").forEach(line => {
-      page.drawText(line, { x: margin, y: clientY, size: 9, font: regular, color: darkGray });
-      clientY -= 13;
-    });
-  }
-
-  // Dates (right column)
-  const dateColX = width - margin - 160;
-  function dateRow(label: string, value: string, y: number) {
-    page.drawText(label, { x: dateColX, y: y + 14, size: 8, font: bold, color: midGray });
-    page.drawText(value, { x: dateColX, y, size: 10, font: regular, color: black });
-  }
-  dateRow("ISSUE DATE", formatDate(invoice.issue_date), infoY - 4);
-  dateRow("DUE DATE",   formatDate(invoice.due_date),   infoY - 36);
-
-  // ── Horizontal rule ─────────────────────────────────────────
-  const tableTop = infoY - 85;
-  page.drawLine({ start: { x: margin, y: tableTop + 24 }, end: { x: width - margin, y: tableTop + 24 }, thickness: 0.5, color: rule });
-
-  // ── Table header ────────────────────────────────────────────
-  page.drawRectangle({ x: margin, y: tableTop, width: contentW, height: 24, color: black });
-
-  const col = { desc: margin + 10, qty: margin + contentW * 0.56, rate: margin + contentW * 0.71, amt: margin + contentW * 0.87 };
-  function thText(text: string, x: number) {
-    page.drawText(text, { x, y: tableTop + 8, size: 8, font: bold, color: white });
-  }
-  thText("DESCRIPTION", col.desc);
-  thText("QTY",         col.qty);
-  thText("RATE",        col.rate);
-  thText("AMOUNT",      col.amt);
-
-  // ── Table rows ───────────────────────────────────────────────
-  let rowY = tableTop - 6;
-  invoice.items.forEach((item, i) => {
-    const rowH = 26;
-    if (i % 2 === 1) {
-      page.drawRectangle({ x: margin, y: rowY - rowH + 8, width: contentW, height: rowH, color: lightBg });
+    for (const line of invoice.client_address.split("\n")) {
+      page.drawText(line, { x: L, y, size: 9, font: regular, color: muted });
+      y -= 13;
     }
-    const desc = item.description.length > 52 ? item.description.substring(0, 49) + "..." : item.description;
-    page.drawText(desc || "-",                    { x: col.desc, y: rowY, size: 10, font: regular, color: black });
-    page.drawText(String(item.quantity),           { x: col.qty,  y: rowY, size: 10, font: regular, color: darkGray });
-    page.drawText(formatCurrency(item.rate),       { x: col.rate, y: rowY, size: 10, font: regular, color: darkGray });
-    page.drawText(formatCurrency(item.amount),     { x: col.amt,  y: rowY, size: 10, font: bold,    color: black });
-    rowY -= rowH;
+  }
+
+  // Dates (right column — anchored to fixed positions)
+  const dx = R - 155;
+  page.drawText("ISSUE DATE",              { x: dx, y: height - 148, size: 7.5, font: bold, color: muted });
+  page.drawText(formatDate(invoice.issue_date), { x: dx, y: height - 162, size: 10,  font: regular, color: ink });
+  page.drawText("DUE DATE",               { x: dx, y: height - 182, size: 7.5, font: bold, color: muted });
+  page.drawText(formatDate(invoice.due_date),   { x: dx, y: height - 196, size: 10,  font: regular, color: ink });
+
+  // ── Divider before table ────────────────────────────────────
+  const divY = Math.min(y - 16, height - 225);
+  page.drawLine({ start: { x: L, y: divY }, end: { x: R, y: divY }, thickness: 0.5, color: faint });
+
+  // ── Table ──────────────────────────────────────────────────
+  const tY = divY - 8;  // top of table header
+
+  // Column x positions
+  const cx = {
+    desc:   L + 8,
+    qty:    L + W * 0.57,
+    rate:   L + W * 0.71,
+    amt:    L + W * 0.86,
+  };
+
+  // Header bar
+  page.drawRectangle({ x: L, y: tY - 22, width: W, height: 22, color: ink });
+  page.drawText("DESCRIPTION", { x: cx.desc, y: tY - 15, size: 8, font: bold, color: white });
+  page.drawText("QTY",         { x: cx.qty,  y: tY - 15, size: 8, font: bold, color: white });
+  page.drawText("RATE",        { x: cx.rate, y: tY - 15, size: 8, font: bold, color: white });
+  page.drawText("AMOUNT",      { x: cx.amt,  y: tY - 15, size: 8, font: bold, color: white });
+
+  // Rows
+  const rowH = 25;
+  let rTop = tY - 22; // bottom of header = top of first row
+
+  invoice.items.forEach((item, i) => {
+    const rowBottom = rTop - rowH;
+    if (i % 2 === 1) {
+      page.drawRectangle({ x: L, y: rowBottom, width: W, height: rowH, color: stripe });
+    }
+    const textY = rowBottom + 8;
+    const desc = item.description.length > 55 ? item.description.substring(0, 52) + "..." : item.description;
+    page.drawText(desc || "—",               { x: cx.desc, y: textY, size: 9.5, font: regular, color: ink });
+    page.drawText(String(item.quantity),      { x: cx.qty,  y: textY, size: 9.5, font: regular, color: muted });
+    page.drawText(formatCurrency(item.rate),  { x: cx.rate, y: textY, size: 9.5, font: regular, color: muted });
+    const aw = bold.widthOfTextAtSize(formatCurrency(item.amount), 9.5);
+    page.drawText(formatCurrency(item.amount), { x: R - 8 - aw, y: textY, size: 9.5, font: bold, color: ink });
+    rTop = rowBottom;
   });
 
-  // ── Totals ──────────────────────────────────────────────────
-  page.drawLine({ start: { x: margin, y: rowY + 12 }, end: { x: width - margin, y: rowY + 12 }, thickness: 0.5, color: rule });
+  const afterRows = rTop; // y at bottom of last row
 
-  const totX = width - margin - 190;
-  const totValX = width - margin - 5;
-  let totY = rowY - 4;
+  // ── Totals ─────────────────────────────────────────────────
+  page.drawLine({ start: { x: L, y: afterRows - 2 }, end: { x: R, y: afterRows - 2 }, thickness: 0.5, color: faint });
 
-  function totalRow(label: string, value: string, isTotal = false) {
+  const tCol  = R - 192;
+  let totCursor = afterRows - 18;
+
+  function drawTotRow(label: string, val: string, isTotal = false) {
     if (isTotal) {
-      page.drawRectangle({ x: totX - 10, y: totY - 6, width: 195, height: 28, color: orange });
-      page.drawText(label, { x: totX, y: totY + 5, size: 11, font: bold, color: white });
-      // Right-align value
-      const vw = bold.widthOfTextAtSize(value, 13);
-      page.drawText(value, { x: totValX - vw, y: totY + 4, size: 13, font: bold, color: white });
+      page.drawRectangle({ x: tCol - 8, y: totCursor - 8, width: R - tCol + 8, height: 26, color: orange });
+      page.drawText(label, { x: tCol, y: totCursor + 5, size: 11, font: bold, color: white });
+      const vw = bold.widthOfTextAtSize(val, 13);
+      page.drawText(val, { x: R - 8 - vw, y: totCursor + 4, size: 13, font: bold, color: white });
+      totCursor -= 38;
     } else {
-      page.drawText(label, { x: totX, y: totY, size: 10, font: regular, color: midGray });
-      const vw = regular.widthOfTextAtSize(value, 10);
-      page.drawText(value, { x: totValX - vw, y: totY, size: 10, font: regular, color: black });
+      page.drawText(label, { x: tCol, y: totCursor, size: 9.5, font: regular, color: muted });
+      const vw = regular.widthOfTextAtSize(val, 9.5);
+      page.drawText(val, { x: R - 8 - vw, y: totCursor, size: 9.5, font: regular, color: ink });
+      totCursor -= 18;
     }
-    totY -= isTotal ? 36 : 20;
   }
 
-  totalRow("Subtotal", formatCurrency(invoice.subtotal));
-  if (invoice.tax_rate > 0) {
-    totalRow(`Tax (${invoice.tax_rate}%)`, formatCurrency(invoice.tax_amount));
-  }
-  totalRow("TOTAL", formatCurrency(invoice.total), true);
+  drawTotRow("Subtotal", formatCurrency(invoice.subtotal));
+  if (invoice.tax_rate > 0) drawTotRow(`Tax (${invoice.tax_rate}%)`, formatCurrency(invoice.tax_amount));
+  totCursor -= 4;
+  drawTotRow("TOTAL", formatCurrency(invoice.total), true);
 
-  // ── Notes ────────────────────────────────────────────────────
-  if (invoice.notes) {
-    const notesY = Math.min(totY - 20, rowY - 20);
-    page.drawText("NOTES", { x: margin, y: notesY, size: 8, font: bold, color: orange });
-    // Wrap notes text manually
+  // ── Notes ──────────────────────────────────────────────────
+  const notesStartY = Math.min(totCursor - 24, afterRows - 24);
+  if (invoice.notes && notesStartY > 80) {
+    let ny = notesStartY;
+    page.drawText("NOTES", { x: L, y: ny, size: 7.5, font: bold, color: orange });
+    ny -= 14;
     const words = invoice.notes.split(" ");
     let line = "";
-    let lineY = notesY - 14;
-    const maxW = contentW * 0.55;
-    words.forEach(word => {
+    const maxW = W * 0.55;
+    for (const word of words) {
       const test = line ? line + " " + word : word;
       if (regular.widthOfTextAtSize(test, 9) > maxW) {
-        page.drawText(line, { x: margin, y: lineY, size: 9, font: regular, color: darkGray });
+        page.drawText(line, { x: L, y: ny, size: 9, font: regular, color: muted });
         line = word;
-        lineY -= 13;
+        ny -= 13;
       } else {
         line = test;
       }
-    });
-    if (line) page.drawText(line, { x: margin, y: lineY, size: 9, font: regular, color: darkGray });
+    }
+    if (line) page.drawText(line, { x: L, y: ny, size: 9, font: regular, color: muted });
   }
 
-  // ── Payment Methods ──────────────────────────────────────────
+  // ── Payment details ────────────────────────────────────────
   const payLines: string[] = [];
   if (profile.payment_bank_name && profile.payment_bank_account) {
-    payLines.push(`Bank: ${profile.payment_bank_name}  ·  Acct: ${profile.payment_bank_account}${profile.payment_bank_routing ? `  ·  Routing: ${profile.payment_bank_routing}` : ""}`);
+    payLines.push(`Bank: ${profile.payment_bank_name}  ·  Account: ${profile.payment_bank_account}${profile.payment_bank_routing ? `  ·  Routing: ${profile.payment_bank_routing}` : ""}`);
   }
   const wallets: string[] = [];
-  if (profile.payment_paypal) wallets.push(`PayPal: ${profile.payment_paypal}`);
-  if (profile.payment_venmo)  wallets.push(`Venmo: ${profile.payment_venmo}`);
+  if (profile.payment_paypal)  wallets.push(`PayPal: ${profile.payment_paypal}`);
+  if (profile.payment_venmo)   wallets.push(`Venmo: ${profile.payment_venmo}`);
   if (profile.payment_cashapp) wallets.push(`Cash App: ${profile.payment_cashapp}`);
   if (wallets.length) payLines.push(wallets.join("   ·   "));
-  if (profile.payment_other) payLines.push(profile.payment_other);
+  if (profile.payment_other)   payLines.push(profile.payment_other);
 
   if (payLines.length > 0) {
-    const payStartY = 52 + payLines.length * 14;
-    page.drawRectangle({ x: 0, y: 40, width, height: payStartY, color: rgb(0.06, 0.06, 0.09) });
-    page.drawText("PAYMENT DETAILS", { x: margin, y: 40 + payLines.length * 14 + 4, size: 7, font: bold, color: orange });
+    const blockH = payLines.length * 13 + 24;
+    const blockY = 46;
+    page.drawRectangle({ x: 0, y: blockY, width, height: blockH, color: rgb(0.07, 0.07, 0.1) });
+    page.drawText("PAYMENT DETAILS", { x: L, y: blockY + blockH - 14, size: 7.5, font: bold, color: orange });
     payLines.forEach((line, i) => {
-      page.drawText(line, { x: margin, y: 40 + (payLines.length - 1 - i) * 14, size: 8, font: regular, color: rgb(0.65, 0.65, 0.7) });
+      page.drawText(line, { x: L, y: blockY + blockH - 27 - i * 13, size: 8, font: regular, color: rgb(0.62, 0.62, 0.68) });
     });
   }
 
-  // ── Footer ──────────────────────────────────────────────────
-  page.drawLine({ start: { x: margin, y: 36 }, end: { x: width - margin, y: 36 }, thickness: 0.5, color: rule });
+  // ── Footer ─────────────────────────────────────────────────
+  page.drawLine({ start: { x: L, y: 38 }, end: { x: R, y: 38 }, thickness: 0.4, color: faint });
   page.drawText("Generated with Billed  ·  billed-alpha.vercel.app", {
-    x: margin, y: 20, size: 8, font: regular, color: rgb(0.7, 0.7, 0.75),
+    x: L, y: 24, size: 7.5, font: regular, color: rgb(0.68, 0.68, 0.72),
   });
-  // Right-align page number
-  const pgText = "Page 1 of 1";
-  const pgW = regular.widthOfTextAtSize(pgText, 8);
-  page.drawText(pgText, { x: width - margin - pgW, y: 20, size: 8, font: regular, color: rgb(0.7, 0.7, 0.75) });
+  const pg = "Page 1 of 1";
+  const pgW = regular.widthOfTextAtSize(pg, 7.5);
+  page.drawText(pg, { x: R - pgW, y: 24, size: 7.5, font: regular, color: rgb(0.68, 0.68, 0.72) });
 
   return pdfDoc.save();
 }
