@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe, PLANS } from "@/lib/stripe";
+import { getStripe, PLANS } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -13,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await supabase.from("profiles").select("stripe_customer_id").eq("id", user.id).single();
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: "subscription",
     payment_method_types: ["card"],
     customer: profile?.stripe_customer_id || undefined,
