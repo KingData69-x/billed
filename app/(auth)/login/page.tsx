@@ -10,6 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -52,6 +53,27 @@ export default function LoginPage() {
           required
           autoComplete="current-password"
         />
+
+        {/* Remember me */}
+        <label className="flex items-center gap-2.5 cursor-pointer select-none group">
+          <div className="relative">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="sr-only"
+            />
+            <div className={`w-4 h-4 rounded flex items-center justify-center transition-all ${rememberMe ? "bg-orange-500" : "bg-white/10 border border-white/20"}`}>
+              {rememberMe && (
+                <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
+                  <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+          </div>
+          <span className="text-sm text-zinc-400 group-hover:text-zinc-300 transition-colors">Remember me</span>
+        </label>
+
         {error && <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p>}
         <Button type="submit" loading={loading} className="w-full" size="lg">
           Sign in
