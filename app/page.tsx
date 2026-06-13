@@ -41,7 +41,7 @@ export default function LandingPage() {
             Create your first invoice
             <ArrowRight className="w-4 h-4" />
           </Link>
-          <Link href="/invoices/new" className="inline-flex items-center gap-2 text-zinc-300 hover:text-white border border-white/10 hover:border-white/20 px-8 py-3.5 rounded-xl text-base transition-all">
+          <Link href="/demo" className="inline-flex items-center gap-2 text-zinc-300 hover:text-white border border-white/10 hover:border-white/20 px-8 py-3.5 rounded-xl text-base transition-all">
             Try without account
           </Link>
         </div>
