@@ -98,3 +98,41 @@ body {
     linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
   background-size: 48px 48px;
 }
+
+/* ── Dashboard interactive elements (CSS-only hover, no JS handlers) ── */
+
+.dashboard-cta-btn {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  box-shadow: 0 4px 24px rgba(249,115,22,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.dashboard-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(249,115,22,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.dashboard-action-primary {
+  background: linear-gradient(90deg, rgba(249,115,22,0.1), rgba(249,115,22,0.04));
+  border: 1px solid rgba(249,115,22,0.18);
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.dashboard-action-primary:hover {
+  border-color: rgba(249,115,22,0.35);
+  background: linear-gradient(90deg, rgba(249,115,22,0.14), rgba(249,115,22,0.06));
+  transform: translateY(-2px);
+}
+
+.dashboard-action-secondary {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.dashboard-action-secondary:hover {
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+}
+
+.dashboard-table-row:hover {
+  background: rgba(255,255,255,0.018);
+}
