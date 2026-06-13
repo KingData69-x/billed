@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   // IMPORTANT: Set this to your Vercel URL after deploying
   // The app loads your live web app — updates automatically apply to mobile too
   server: {
-    url: "https://billed-alpha.vercel.app",
+    url: "https://swiftbill.dev",
     cleartext: false,
     androidScheme: "https",
   },

@@ -27,7 +27,7 @@ export default async function LandingPage() {
     operatingSystem: "Web",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
     description: "Free invoice generator for freelancers. Create professional PDF invoices in 60 seconds.",
-    url: "https://billed-alpha.vercel.app",
+    url: "https://swiftbill.dev",
     aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "128" },
   };
 

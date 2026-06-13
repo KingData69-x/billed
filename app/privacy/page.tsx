@@ -89,7 +89,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">10. Contact</h2>
-            <p>Questions about this policy? Reach us at <span className="text-orange-400">privacy@billed-alpha.vercel.app</span> or through the in-app settings page.</p>
+            <p>Questions about this policy? Reach us at <span className="text-orange-400">privacy@swiftbill.dev</span> or through the in-app settings page.</p>
           </section>
         </div>
       </main>

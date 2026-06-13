@@ -24,9 +24,9 @@ export async function generateMetadata(
     title,
     description,
     keywords: `invoice generator for ${p.singular}s, free ${p.singular} invoice, ${p.singular} invoice template, how to invoice as a ${p.singular}`,
-    openGraph: { title, description, type: "website", url: `https://billed-alpha.vercel.app/invoice-generator/${profession}` },
+    openGraph: { title, description, type: "website", url: `https://swiftbill.dev/invoice-generator/${profession}` },
     twitter: { card: "summary_large_image", title, description },
-    alternates: { canonical: `https://billed-alpha.vercel.app/invoice-generator/${profession}` },
+    alternates: { canonical: `https://swiftbill.dev/invoice-generator/${profession}` },
   };
 }
 
@@ -43,7 +43,7 @@ export default async function ProfessionPage(props: PageProps<"/invoice-generato
     operatingSystem: "Web",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
     description: `Free invoice generator for ${p.label.toLowerCase()}. Create professional invoices in seconds.`,
-    url: `https://billed-alpha.vercel.app/invoice-generator/${profession}`,
+    url: `https://swiftbill.dev/invoice-generator/${profession}`,
   };
 
   const features = [

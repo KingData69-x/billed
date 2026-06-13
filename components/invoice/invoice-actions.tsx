@@ -53,7 +53,7 @@ export function InvoiceActions({ invoice, profile }: InvoiceActionsProps) {
 
   function handleTweet() {
     const text = encodeURIComponent("Just created a professional invoice in under 60 seconds with @swiftbill — it's completely free 🔥");
-    const url = encodeURIComponent("https://billed-alpha.vercel.app");
+    const url = encodeURIComponent("https://swiftbill.dev");
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
     setShowSharePrompt(false);
   }

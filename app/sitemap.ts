@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { PROFESSIONS } from "@/lib/professions";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://billed-alpha.vercel.app";
+  const base = "https://swiftbill.dev";
   const now = new Date();
 
   const static_pages: MetadataRoute.Sitemap = [

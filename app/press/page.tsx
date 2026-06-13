@@ -180,7 +180,7 @@ export default function PressPage() {
             <div>
               <p className="text-white font-semibold">Media inquiries</p>
               <p className="text-zinc-400 text-sm mt-0.5">For interviews, features, and editorial questions</p>
-              <p className="text-orange-400 text-sm mt-2 font-medium">press@billed-alpha.vercel.app</p>
+              <p className="text-orange-400 text-sm mt-2 font-medium">press@swiftbill.dev</p>
             </div>
             <Link
               href="/signup"

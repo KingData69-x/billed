@@ -92,7 +92,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">12. Contact</h2>
-            <p>Questions about these Terms? Email <span className="text-orange-400">legal@billed-alpha.vercel.app</span></p>
+            <p>Questions about these Terms? Email <span className="text-orange-400">legal@swiftbill.dev</span></p>
           </section>
 
         </div>

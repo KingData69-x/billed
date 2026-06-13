@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 Write-Host ""
 Write-Host "================================" -ForegroundColor Cyan
@@ -72,13 +72,13 @@ try {
 try {
     $webhook = Invoke-RestMethod -Uri "https://api.stripe.com/v1/webhook_endpoints" `
         -Method Post -Headers $headers `
-        -Body "url=https://billed-alpha.vercel.app/api/stripe/webhook&enabled_events[]=checkout.session.completed&enabled_events[]=customer.subscription.deleted"
+        -Body "url=https://swiftbill.dev/api/stripe/webhook&enabled_events[]=checkout.session.completed&enabled_events[]=customer.subscription.deleted"
     $stripeWebhookSecret = $webhook.secret
     Write-Host "  Webhook: created" -ForegroundColor Green
 } catch {
     Write-Host "  Could not auto-create webhook: $_" -ForegroundColor Yellow
     Write-Host "  Go to https://dashboard.stripe.com/webhooks and add:"
-    Write-Host "    URL: https://billed-alpha.vercel.app/api/stripe/webhook"
+    Write-Host "    URL: https://swiftbill.dev/api/stripe/webhook"
     Write-Host "    Events: checkout.session.completed, customer.subscription.deleted"
     $stripeWebhookSecret = Read-Host "Enter webhook signing secret (whsec_xxx)"
 }
@@ -86,7 +86,7 @@ try {
 # Write .env.local
 Write-Host ""
 Write-Host "Writing .env.local..." -ForegroundColor Cyan
-$env_content = "NEXT_PUBLIC_SUPABASE_URL=$supabaseUrl`nNEXT_PUBLIC_SUPABASE_ANON_KEY=$supabaseAnonKey`nSUPABASE_SERVICE_ROLE_KEY=$supabaseServiceKey`nNEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$stripePublishable`nSTRIPE_SECRET_KEY=$stripeSecret`nSTRIPE_WEBHOOK_SECRET=$stripeWebhookSecret`nSTRIPE_PRO_PRICE_ID=$stripeProPriceId`nSTRIPE_BUSINESS_PRICE_ID=$stripeBusinessPriceId`nNEXT_PUBLIC_APP_URL=https://billed-alpha.vercel.app"
+$env_content = "NEXT_PUBLIC_SUPABASE_URL=$supabaseUrl`nNEXT_PUBLIC_SUPABASE_ANON_KEY=$supabaseAnonKey`nSUPABASE_SERVICE_ROLE_KEY=$supabaseServiceKey`nNEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$stripePublishable`nSTRIPE_SECRET_KEY=$stripeSecret`nSTRIPE_WEBHOOK_SECRET=$stripeWebhookSecret`nSTRIPE_PRO_PRICE_ID=$stripeProPriceId`nSTRIPE_BUSINESS_PRICE_ID=$stripeBusinessPriceId`nNEXT_PUBLIC_APP_URL=https://swiftbill.dev"
 [System.IO.File]::WriteAllText((Join-Path (Get-Location) ".env.local"), $env_content, [System.Text.Encoding]::UTF8)
 Write-Host "  .env.local written" -ForegroundColor Green
 
@@ -103,7 +103,7 @@ $vars = @{
     "STRIPE_WEBHOOK_SECRET"              = $stripeWebhookSecret
     "STRIPE_PRO_PRICE_ID"                = $stripeProPriceId
     "STRIPE_BUSINESS_PRICE_ID"           = $stripeBusinessPriceId
-    "NEXT_PUBLIC_APP_URL"                = "https://billed-alpha.vercel.app"
+    "NEXT_PUBLIC_APP_URL"                = "https://swiftbill.dev"
 }
 
 foreach ($key in $vars.Keys) {
@@ -134,7 +134,7 @@ Write-Host "================================" -ForegroundColor Green
 Write-Host "  Done!" -ForegroundColor Green
 Write-Host "================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "Live at: https://billed-alpha.vercel.app" -ForegroundColor Cyan
+Write-Host "Live at: https://swiftbill.dev" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Last step: run the schema.sql in the Supabase SQL editor (just opened)." -ForegroundColor Yellow
 Write-Host ""

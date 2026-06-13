@@ -198,7 +198,7 @@ export async function generateInvoicePDF(invoice: Invoice, profile: Profile): Pr
 
   // ── Footer ─────────────────────────────────────────────────
   page.drawLine({ start: { x: L, y: 38 }, end: { x: R, y: 38 }, thickness: 0.4, color: faint });
-  page.drawText("Create free invoices at  billed-alpha.vercel.app", {
+  page.drawText("Create free invoices at  swiftbill.dev", {
     x: L, y: 24, size: 8, font: bold, color: orange,
   });
   const pg = "Page 1 of 1";

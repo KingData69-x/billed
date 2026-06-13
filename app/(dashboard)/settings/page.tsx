@@ -256,7 +256,7 @@ export default function SettingsPage() {
               className="flex-1 px-3 py-2 rounded-lg text-sm font-mono text-zinc-300 truncate"
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
             >
-              {typeof window !== "undefined" ? `${window.location.origin}/signup?ref=${profile.referral_code}` : `https://billed-alpha.vercel.app/signup?ref=${profile.referral_code}`}
+              {typeof window !== "undefined" ? `${window.location.origin}/signup?ref=${profile.referral_code}` : `https://swiftbill.dev/signup?ref=${profile.referral_code}`}
             </div>
             <button
               onClick={() => {
