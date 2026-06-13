@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle, Zap, CreditCard, Building2, Wallet } from "lucide-react";
+import { CheckCircle, Zap, CreditCard, Building2, Wallet, Users, Copy, Check } from "lucide-react";
 import type { Profile } from "@/lib/types";
 
 export default function SettingsPage() {
@@ -12,6 +12,8 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [savingPayment, setSavingPayment] = useState(false);
   const [savedPayment, setSavedPayment] = useState(false);
+  const [referralCount, setReferralCount] = useState(0);
+  const [copiedRef, setCopiedRef] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -19,6 +21,13 @@ export default function SettingsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).single();
       setProfile(data as Profile);
+      if (data?.referral_code) {
+        const { count } = await supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
+          .eq("referred_by", data.referral_code);
+        setReferralCount(count ?? 0);
+      }
     })();
   }, []);
 
@@ -226,6 +235,59 @@ export default function SettingsPage() {
               {savedPayment ? <><CheckCircle className="w-4 h-4" /> Saved!</> : "Save Payment Info"}
             </Button>
           </form>
+        </section>
+      )}
+      {/* Referral */}
+      {profile.referral_code && (
+        <section
+          className="rounded-xl p-5"
+          style={{ background: "linear-gradient(135deg, rgba(249,115,22,0.06), rgba(249,115,22,0.02))", border: "1px solid rgba(249,115,22,0.15)" }}
+        >
+          <div className="flex items-center gap-3 mb-1">
+            <Users className="w-4 h-4 text-orange-400" />
+            <h2 className="text-sm font-semibold text-white uppercase tracking-wide">Refer a Friend</h2>
+          </div>
+          <p className="text-zinc-500 text-xs mb-4 ml-7">
+            Share your link. Every freelancer or business you send to Swiftbill helps grow the community.
+          </p>
+
+          <div className="flex items-center gap-2 mb-4">
+            <div
+              className="flex-1 px-3 py-2 rounded-lg text-sm font-mono text-zinc-300 truncate"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              {typeof window !== "undefined" ? `${window.location.origin}/signup?ref=${profile.referral_code}` : `https://billed-alpha.vercel.app/signup?ref=${profile.referral_code}`}
+            </div>
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}/signup?ref=${profile.referral_code}`;
+                navigator.clipboard.writeText(url).catch(() => {});
+                setCopiedRef(true);
+                setTimeout(() => setCopiedRef(false), 2000);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all shrink-0"
+              style={{
+                background: copiedRef ? "rgba(16,185,129,0.15)" : "rgba(249,115,22,0.15)",
+                border: copiedRef ? "1px solid rgba(16,185,129,0.3)" : "1px solid rgba(249,115,22,0.25)",
+                color: copiedRef ? "#10b981" : "#fb923c",
+              }}
+            >
+              {copiedRef ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedRef ? "Copied!" : "Copy"}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span
+              className="text-lg font-bold tabular-nums"
+              style={{ color: referralCount > 0 ? "#fb923c" : "rgba(255,255,255,0.3)" }}
+            >
+              {referralCount}
+            </span>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+              {referralCount === 1 ? "person" : "people"} signed up via your link
+            </span>
+          </div>
         </section>
       )}
     </div>

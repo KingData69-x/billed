@@ -110,7 +110,7 @@ export function InvoiceForm({ profile, clients, monthlyCount }: InvoiceFormProps
     setDownloading(true);
     try {
       const { generateInvoicePDF } = await import("@/lib/pdf");
-      const fakeProfile = profile ?? { id: "", email: "", full_name: "Your Business", business_name: null, business_email: null, business_phone: null, business_address: null, plan: "free" as const, stripe_customer_id: null, invoice_count: 0, payment_bank_name: null, payment_bank_account: null, payment_bank_routing: null, payment_paypal: null, payment_venmo: null, payment_cashapp: null, payment_other: null, created_at: "" };
+      const fakeProfile = profile ?? { id: "", email: "", full_name: "Your Business", business_name: null, business_email: null, business_phone: null, business_address: null, plan: "free" as const, stripe_customer_id: null, invoice_count: 0, payment_bank_name: null, payment_bank_account: null, payment_bank_routing: null, payment_paypal: null, payment_venmo: null, payment_cashapp: null, payment_other: null, referral_code: null, referred_by: null, created_at: "" };
       const fakeInvoice = {
         id: "preview", user_id: "", client_id: null,
         invoice_number: "INV-PREVIEW",
@@ -122,6 +122,7 @@ export function InvoiceForm({ profile, clients, monthlyCount }: InvoiceFormProps
         client_email: clientEmail || null,
         client_address: clientAddress || null,
         currency: "USD",
+        public_token: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

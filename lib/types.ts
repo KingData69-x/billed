@@ -18,6 +18,8 @@ export interface Profile {
   payment_venmo: string | null;
   payment_cashapp: string | null;
   payment_other: string | null;
+  referral_code: string | null;
+  referred_by: string | null;
   created_at: string;
 }
 
@@ -60,6 +62,7 @@ export interface Invoice {
   client_name: string;
   client_email: string | null;
   client_address: string | null;
+  public_token: string | null;
   created_at: string;
   updated_at: string;
 }

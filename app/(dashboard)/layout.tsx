@@ -38,6 +38,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         userName={profile?.full_name}
         userEmail={user.email}
         userPlan={(profile?.plan as "free" | "pro" | "business") ?? "free"}
+        isAdmin={user.email === process.env.ADMIN_EMAIL}
       />
 
       <main className="flex-1 ml-60 overflow-y-auto relative z-10 dashboard-grid">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/badge";
 import { InvoiceActions } from "@/components/invoice/invoice-actions";
+import { ShareButton } from "./share-button";
 import { ArrowLeft } from "lucide-react";
 import type { Invoice, Profile } from "@/lib/types";
 
@@ -35,7 +36,10 @@ export default async function InvoicePage(props: PageProps<"/invoices/[id]">) {
           </div>
           <p className="text-zinc-400 text-sm mt-0.5">Created {formatDate(inv.created_at)}</p>
         </div>
-        <InvoiceActions invoice={inv} profile={prof} />
+        <div className="flex items-center gap-2">
+          <ShareButton invoiceId={inv.id} existingToken={inv.public_token ?? null} />
+          <InvoiceActions invoice={inv} profile={prof} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

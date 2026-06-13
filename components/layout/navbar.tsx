@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, FileText, Users, Settings, LogOut, Zap, Sparkles } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut, Zap, Sparkles, Shield } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -17,9 +17,10 @@ interface SidebarProps {
   userName?: string | null;
   userEmail?: string | null;
   userPlan?: "free" | "pro" | "business";
+  isAdmin?: boolean;
 }
 
-export function Sidebar({ userName, userEmail, userPlan = "free" }: SidebarProps) {
+export function Sidebar({ userName, userEmail, userPlan = "free", isAdmin = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -59,7 +60,7 @@ export function Sidebar({ userName, userEmail, userPlan = "free" }: SidebarProps
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-[15px] font-bold text-white tracking-tight leading-none">Billed</span>
+            <span className="text-[15px] font-bold text-white tracking-tight leading-none">Swiftbill</span>
             {isPaid && (
               <span
                 className="text-[9px] font-bold uppercase tracking-widest leading-tight"
@@ -147,6 +148,35 @@ export function Sidebar({ userName, userEmail, userPlan = "free" }: SidebarProps
           );
         })}
       </nav>
+
+      {/* ── Admin link ───────────────────────────── */}
+      {isAdmin && (
+        <div className="px-3 pb-1 animate-fade-in delay-400">
+          <Link
+            href="/admin"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200"
+            style={{
+              background: "linear-gradient(90deg, rgba(249,115,22,0.13), rgba(249,115,22,0.04))",
+              border: "1px solid rgba(249,115,22,0.2)",
+              color: "#fb923c",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(249,115,22,0.4)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(249,115,22,0.2)";
+            }}
+          >
+            <div
+              className="w-[26px] h-[26px] rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: "rgba(249,115,22,0.22)" }}
+            >
+              <Shield style={{ width: 13, height: 13 }} className="text-orange-400" />
+            </div>
+            <span className="flex-1">Owner Panel</span>
+          </Link>
+        </div>
+      )}
 
       {/* ── Upgrade CTA (free only) ───────────────── */}
       {!isPaid && (

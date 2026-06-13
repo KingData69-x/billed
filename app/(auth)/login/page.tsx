@@ -32,7 +32,7 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-sm">
       <h1 className="text-2xl font-bold text-white text-center mb-2">Welcome back</h1>
-      <p className="text-zinc-400 text-center text-sm mb-8">Sign in to your Billed account</p>
+      <p className="text-zinc-400 text-center text-sm mb-8">Sign in to your Swiftbill account</p>
 
       <form onSubmit={handleSubmit} className="bg-white/[0.03] border border-white/5 rounded-2xl p-6 space-y-4">
         <Input

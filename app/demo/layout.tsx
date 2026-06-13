@@ -16,7 +16,7 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
               <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center">
                 <Zap className="w-3.5 h-3.5 text-white fill-white" />
               </div>
-              <span className="text-sm font-bold text-white">Billed</span>
+              <span className="text-sm font-bold text-white">Swiftbill</span>
             </Link>
             <div className="hidden sm:flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 rounded-full px-2.5 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />

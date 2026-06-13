@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
     customer: profile?.stripe_customer_id || undefined,
     customer_email: !profile?.stripe_customer_id ? user.email : undefined,
     line_items: [{ price: planConfig.priceId, quantity: 1 }],
+    allow_promotion_codes: true,
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?success=true`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings`,
     metadata: { user_id: user.id, plan },
